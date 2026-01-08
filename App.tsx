@@ -111,20 +111,29 @@ const App: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError('');
     setIsAuthenticating(true);
-    setConnectionStatus('syncing');
-    const success = await authenticateUser(loginEmail, loginPass);
-    if (success) {
-      localStorage.setItem('is_logged_in', 'true');
-      localStorage.setItem('user_email', loginEmail);
-      setUserEmail(loginEmail);
-      setIsLoggedIn(true);
-      setConnectionStatus('online');
-    } else {
-      setAuthError('Access Denied: Invalid Credentials');
-      setConnectionStatus('error');
+    
+    // Explicitly lowercase the email to avoid mismatch with backend
+    const cleanEmail = loginEmail.toLowerCase().trim();
+    
+    try {
+      const success = await authenticateUser(cleanEmail, loginPass);
+      if (success) {
+        localStorage.setItem('is_logged_in', 'true');
+        localStorage.setItem('user_email', cleanEmail);
+        setUserEmail(cleanEmail);
+        setIsLoggedIn(true);
+        setConnectionStatus('online');
+      } else {
+        setAuthError('Invalid Credentials');
+        setConnectionStatus('error');
+      }
+    } catch (err) {
+      setAuthError('Login Failed. Network Error.');
+    } finally {
+      setIsAuthenticating(false);
     }
-    setIsAuthenticating(false);
   };
 
   if (!isLoggedIn) return (
@@ -136,34 +145,33 @@ const App: React.FC = () => {
         </div>
         <form onSubmit={handleLogin} className="space-y-4">
           <input 
-            type="email" placeholder="Email" required 
-            value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
-            className="w-full px-6 py-4 bg-slate-100 rounded-2xl border border-slate-200 outline-none focus:border-red-500 font-bold text-black placeholder:text-slate-400"
+            type="email" 
+            placeholder="Email" 
+            required 
+            value={loginEmail} 
+            onChange={e => setLoginEmail(e.target.value)}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck="false"
+            // text-base (16px) prevents iOS Safari from auto-zooming on focus
+            className="w-full px-6 py-4 bg-slate-100 rounded-2xl border border-slate-200 outline-none focus:border-red-500 font-bold text-black placeholder:text-slate-400 appearance-none text-base"
           />
           <input 
-            type="password" placeholder="Password" required 
-            value={loginPass} onChange={e => setLoginPass(e.target.value)}
-            className="w-full px-6 py-4 bg-slate-100 rounded-2xl border border-slate-200 outline-none focus:border-red-500 font-bold text-black placeholder:text-slate-400"
+            type="password" 
+            placeholder="Password" 
+            required 
+            value={loginPass} 
+            onChange={e => setLoginPass(e.target.value)}
+            className="w-full px-6 py-4 bg-slate-100 rounded-2xl border border-slate-200 outline-none focus:border-red-500 font-bold text-black placeholder:text-slate-400 appearance-none text-base"
           />
-          {authError && <p className="text-red-600 text-[10px] font-black text-center uppercase tracking-wider">{authError}</p>}
-          <button className="w-full py-5 bg-[#B20D0D] text-white rounded-2xl font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">
-            {isAuthenticating ? 'Verifying...' : 'Sign In'}
+          {authError && <p className="text-red-600 text-[10px] font-black text-center uppercase tracking-wider animate-shake">{authError}</p>}
+          <button 
+            type="submit"
+            disabled={isAuthenticating}
+            className="w-full py-5 bg-[#B20D0D] text-white rounded-2xl font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all disabled:opacity-50 touch-manipulation"
+          >
+            {isAuthenticating ? 'Checking...' : 'Sign In'}
           </button>
-          
-          <div className="flex items-center justify-center gap-2 mt-6 pt-4">
-            <div className={`w-2.5 h-2.5 rounded-full ${
-              connectionStatus === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 
-              connectionStatus === 'syncing' ? 'bg-blue-500 animate-pulse' : 
-              connectionStatus === 'error' ? 'bg-red-500' : 
-              'bg-black'
-            }`}></div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-              {connectionStatus === 'online' ? 'Connected' : 
-               connectionStatus === 'syncing' ? 'Connecting...' : 
-               connectionStatus === 'error' ? 'Server Error' : 
-               'Unknown Status'}
-            </p>
-          </div>
         </form>
       </div>
     </div>
@@ -179,7 +187,7 @@ const App: React.FC = () => {
               <p className="text-[10px] font-black text-slate-900 leading-none">{displayName}</p>
               <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest">User</p>
             </div>
-            <button onClick={() => {localStorage.clear(); setIsLoggedIn(false);}} className="p-2 bg-slate-100 rounded-lg text-slate-400">
+            <button onClick={() => {localStorage.clear(); setIsLoggedIn(false);}} className="p-2 bg-slate-100 rounded-lg text-slate-400 active:bg-slate-200 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>
             </button>
           </div>
@@ -187,9 +195,11 @@ const App: React.FC = () => {
         
         <div className="px-6 pb-3 max-w-7xl mx-auto space-y-3">
           <input 
-            type="text" placeholder="Search across all brands & models..." 
-            value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            className="w-full px-6 py-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 ring-red-500/20 font-bold text-sm text-black"
+            type="text" 
+            placeholder="Search across all brands & models..." 
+            value={searchQuery} 
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full px-6 py-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 ring-red-500/20 font-bold text-sm text-black appearance-none"
           />
           
           <div className="flex flex-col gap-2">
@@ -198,7 +208,7 @@ const App: React.FC = () => {
                 <button 
                   key={cat} 
                   onClick={() => {setActiveCategory(cat); setActiveBrand('All');}}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap flex items-center gap-2 transition-all ${activeCategory === cat ? 'bg-red-600 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100'}`}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap flex items-center gap-2 transition-all touch-manipulation ${activeCategory === cat ? 'bg-red-600 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100'}`}
                 >
                   <span>{cat === 'All' ? '🏠' : getCategoryIcon(cat)}</span>
                   {cat}
@@ -210,7 +220,7 @@ const App: React.FC = () => {
                 <button 
                   key={brand} 
                   onClick={() => setActiveBrand(brand)}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeBrand === brand ? getBrandColors(brand) + ' shadow-lg scale-105' : 'bg-white text-slate-400 border border-slate-100'}`}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all touch-manipulation ${activeBrand === brand ? getBrandColors(brand) + ' shadow-lg scale-105' : 'bg-white text-slate-400 border border-slate-100'}`}
                 >
                   {brand}
                 </button>
@@ -240,7 +250,7 @@ const App: React.FC = () => {
             <p className="text-[8px] text-slate-400 font-bold uppercase">Synced: {lastSynced || 'Never'}</p>
           </div>
         </div>
-        <button onClick={loadData} className="bg-slate-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all">
+        <button onClick={loadData} className="bg-slate-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all touch-manipulation">
           {loading ? '...' : 'Refresh'}
         </button>
       </div>
