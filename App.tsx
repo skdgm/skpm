@@ -111,10 +111,12 @@ const App: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isAuthenticating) return;
+    
     setAuthError('');
     setIsAuthenticating(true);
     
-    // Explicitly lowercase the email to avoid mismatch with backend
+    // Explicitly lowercase the email to avoid mismatch with backend due to iPhone auto-caps
     const cleanEmail = loginEmail.toLowerCase().trim();
     
     try {
@@ -146,22 +148,27 @@ const App: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-4">
           <input 
             type="email" 
+            name="email"
             placeholder="Email" 
             required 
             value={loginEmail} 
             onChange={e => setLoginEmail(e.target.value)}
             autoCapitalize="none"
             autoCorrect="off"
+            autoComplete="email"
             spellCheck="false"
-            // text-base (16px) prevents iOS Safari from auto-zooming on focus
             className="w-full px-6 py-4 bg-slate-100 rounded-2xl border border-slate-200 outline-none focus:border-red-500 font-bold text-black placeholder:text-slate-400 appearance-none text-base"
           />
           <input 
             type="password" 
+            name="password"
             placeholder="Password" 
             required 
             value={loginPass} 
             onChange={e => setLoginPass(e.target.value)}
+            autoCapitalize="none"
+            autoCorrect="off"
+            autoComplete="current-password"
             className="w-full px-6 py-4 bg-slate-100 rounded-2xl border border-slate-200 outline-none focus:border-red-500 font-bold text-black placeholder:text-slate-400 appearance-none text-base"
           />
           {authError && <p className="text-red-600 text-[10px] font-black text-center uppercase tracking-wider animate-shake">{authError}</p>}
