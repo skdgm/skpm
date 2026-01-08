@@ -151,7 +151,6 @@ const App: React.FC = () => {
         </form>
       </div>
       
-      {/* Restored Server Status Display */}
       <div className="mt-8 flex items-center gap-3 px-6 py-3 bg-white/50 rounded-full border border-white shadow-sm">
         <div className={`w-2 h-2 rounded-full ${connectionStatus === 'online' ? 'bg-emerald-500' : connectionStatus === 'error' ? 'bg-red-500' : 'bg-orange-400 animate-pulse'}`}></div>
         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
