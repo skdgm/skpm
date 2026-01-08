@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Phone } from './types';
 import { fetchPhoneData } from './services/googleSheetService';
-import { authenticateUser } from './services/authService';
+import { authenticateUser, AuthResult } from './services/authService';
 import PriceCard from './components/PriceCard';
 
 const WIDE_LOGO_URL = "https://skmobile.in/wp-content/uploads/2024/01/skweblogo.webp";
@@ -61,12 +61,11 @@ const App: React.FC = () => {
     setIsAuthenticating(true);
     setConnectionStatus('checking');
     
-    // Safety check for iPhone auto-capitalization
     const cleanEmail = loginEmail.toLowerCase().trim();
     const cleanPass = loginPass.trim();
     
     try {
-      const result = await authenticateUser(cleanEmail, cleanPass);
+      const result: AuthResult = await authenticateUser(cleanEmail, cleanPass);
       
       if (result.success) {
         localStorage.setItem('is_logged_in', 'true');
@@ -75,12 +74,11 @@ const App: React.FC = () => {
         setIsLoggedIn(true);
         setConnectionStatus('online');
       } else {
-        // Detailed error for debugging on mobile
         setAuthError(result.error || 'Access Denied');
         setConnectionStatus('error');
       }
     } catch (err) {
-      setAuthError('Connection Interrupted');
+      setAuthError('Connection Failed');
       setConnectionStatus('error');
     } finally {
       setIsAuthenticating(false);
@@ -105,12 +103,12 @@ const App: React.FC = () => {
       <div className="w-full max-w-[400px] bg-white rounded-[3rem] p-10 shadow-xl border border-white relative overflow-hidden">
         {isAuthenticating && (
           <div className="absolute top-0 left-0 w-full h-1 bg-slate-100 overflow-hidden">
-            <div className="h-full bg-red-600 animate-[loading_1s_infinite]"></div>
+            <div className="h-full bg-[#B20D0D] animate-[loading_1.5s_infinite]"></div>
           </div>
         )}
         <div className="text-center mb-10">
           <img src={WIDE_LOGO_URL} alt="SK Logo" className="h-10 mx-auto mb-6 object-contain" />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Store Manager Access</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Manager Login</p>
         </div>
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1">
@@ -153,10 +151,11 @@ const App: React.FC = () => {
         </form>
       </div>
       
+      {/* Restored Server Status Display */}
       <div className="mt-8 flex items-center gap-3 px-6 py-3 bg-white/50 rounded-full border border-white shadow-sm">
         <div className={`w-2 h-2 rounded-full ${connectionStatus === 'online' ? 'bg-emerald-500' : connectionStatus === 'error' ? 'bg-red-500' : 'bg-orange-400 animate-pulse'}`}></div>
         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-          {connectionStatus === 'online' ? 'System Ready' : connectionStatus === 'checking' ? 'Connecting to Google...' : 'Login Server Issue'}
+          {connectionStatus === 'online' ? 'Server Connected' : connectionStatus === 'checking' ? 'Connecting to Server...' : 'Connection Error'}
         </span>
       </div>
     </div>
@@ -170,7 +169,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-[10px] font-black text-slate-900 leading-none">{displayName}</p>
-              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Pricing Admin</p>
+              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Pricing Access</p>
             </div>
             <button onClick={() => {localStorage.clear(); setIsLoggedIn(false);}} className="p-2 bg-slate-100 rounded-lg text-slate-400 active:bg-slate-200 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>
@@ -181,7 +180,7 @@ const App: React.FC = () => {
         <div className="px-6 pb-3 max-w-7xl mx-auto space-y-3">
           <input 
             type="text" 
-            placeholder="Search model or brand..." 
+            placeholder="Search by model or brand..." 
             value={searchQuery} 
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full px-6 py-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 ring-red-500/20 font-bold text-sm text-black appearance-none"
@@ -210,9 +209,9 @@ const App: React.FC = () => {
           <div className={`w-2 h-2 rounded-full ${connectionStatus === 'online' ? 'bg-emerald-500' : connectionStatus === 'error' ? 'bg-red-500' : 'bg-orange-400 animate-pulse'}`}></div>
           <div>
             <p className="text-[10px] font-black text-slate-800 leading-none uppercase">
-              {connectionStatus === 'online' ? 'Live' : 'Offline'}
+              {connectionStatus === 'online' ? 'Live Data' : 'Offline'}
             </p>
-            <p className="text-[8px] text-slate-400 font-bold uppercase">Sync: {lastSynced || 'Pending'}</p>
+            <p className="text-[8px] text-slate-400 font-bold uppercase">Synced: {lastSynced || 'Never'}</p>
           </div>
         </div>
         <button onClick={loadData} disabled={loading} className="bg-slate-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50">
