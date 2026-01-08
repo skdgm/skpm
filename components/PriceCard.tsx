@@ -3,7 +3,6 @@ import React from 'react';
 import { Phone } from '../types';
 
 interface PriceCardProps {
-  // Fixed circular reference: directly using the Phone type instead of referencing itself
   phone: Phone;
 }
 
@@ -29,7 +28,7 @@ const PriceCard: React.FC<PriceCardProps> = ({ phone }) => {
     }).format(val);
   };
 
-  const displayPercentage = phone.marginPercentage > 100 ? (phone.marginPercentage / 100).toFixed(1) : phone.marginPercentage.toFixed(1);
+  const displayPercentage = phone.marginPercentage > 1 ? phone.marginPercentage.toFixed(1) : (phone.marginPercentage * 100).toFixed(1);
 
   return (
     <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 flex flex-col hover:shadow-xl transition-all border-l-4 hover:border-l-[#B20D0D] overflow-hidden">
@@ -45,7 +44,6 @@ const PriceCard: React.FC<PriceCardProps> = ({ phone }) => {
               </span>
             </div>
             <h3 className="text-lg font-black text-slate-900 leading-tight tracking-tight">{phone.model}</h3>
-            {/* VARIANT REMOVED OR KEPT IF IN MODEL NAME ALREADY. VARIANT DATA FROM COLUMN 3 REMOVED IF IT WAS DUPLICATING THE PRICE. */}
           </div>
         </div>
 

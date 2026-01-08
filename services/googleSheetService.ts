@@ -53,13 +53,13 @@ const parseCsv = (csvText: string): Phone[] => {
       category: values[0] || 'General',
       brand: values[1] || 'Unknown',
       model: values[2] || 'Unknown',
-      variant: '', // FORCED EMPTY TO REMOVE COLUMN D LEAK
-      costPrice: cleanNum(values[14]),   // NLC
-      sellingPrice: cleanNum(values[15]),// MOP
+      variant: '', 
+      costPrice: cleanNum(values[14]),   
+      sellingPrice: cleanNum(values[15]),
       mrp: cleanNum(values[7]) || 0,
       margin: cleanNum(values[17]) || 0,
-      marginPercentage: cleanNum(values[18]) * 100 || 0,
-      currentOffer: '-', // REMOVED
+      marginPercentage: cleanNum(values[18]) || 0,
+      currentOffer: '-', 
       stockStatus: (values[9] as any) || 'In Stock',
       lastUpdated: values[10] || new Date().toLocaleDateString()
     };
