@@ -6,7 +6,7 @@ export const authenticateUser = async (email: string, password: string): Promise
     const cleanEmail = email.toLowerCase().trim();
     const cleanPass = password.trim();
     
-    // Add timestamp to prevent caching
+    // Add cache-busting timestamp
     const url = `${SCRIPT_URL}?type=checkLogin&email=${encodeURIComponent(cleanEmail)}&password=${encodeURIComponent(cleanPass)}&t=${Date.now()}`;
     
     const response = await fetch(url, {
@@ -16,7 +16,7 @@ export const authenticateUser = async (email: string, password: string): Promise
     });
 
     if (!response.ok) {
-      return { success: false, error: `Server Error (${response.status})` };
+      return { success: false, error: `Google API Error (${response.status})` };
     }
     
     const data = await response.json();
@@ -26,7 +26,7 @@ export const authenticateUser = async (email: string, password: string): Promise
       return { success: false, error: 'Invalid Credentials' };
     }
   } catch (error) {
-    console.error("Auth Error:", error);
+    console.error("Auth Exception:", error);
     return { success: false, error: 'Network Connection Failed' };
   }
 };
