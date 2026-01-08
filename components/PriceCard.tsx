@@ -10,13 +10,15 @@ const PriceCard: React.FC<PriceCardProps> = ({ phone }) => {
   const getBrandStyles = (brand: string) => {
     const b = brand.toLowerCase().trim();
     if (b === 'oneplus' || b.includes('one plus')) return 'bg-[#B20D0D] text-white border-[#B20D0D]';
-    if (b.includes('apple') || b.includes('google') || b.includes('infinix')) return 'bg-black text-white border-black';
+    if (b.includes('apple') || b.includes('google')) return 'bg-black text-white border-black';
+    if (b.includes('infinix')) return 'bg-[#CCFF00] text-black border-[#CCFF00] font-black'; // Neon Green
     if (b.includes('samsung')) return 'bg-[#034EA2] text-white border-[#034EA2]';
     if (b.includes('oppo')) return 'bg-[#008A45] text-white border-[#008A45]';
     if (b.includes('vivo')) return 'bg-[#008CFF] text-white border-[#008CFF]';
     if (b.includes('realme')) return 'bg-[#FFC915] text-black border-[#FFC915]';
     if (b.includes('mi') || b.includes('xiaomi')) return 'bg-[#FF6700] text-white border-[#FF6700]';
-    if (b.includes('nothing')) return 'bg-slate-200 text-slate-800 border-slate-300';
+    if (b.includes('motorola') || b.includes('moto')) return 'bg-[#212121] text-white border-[#212121]';
+    if (b.includes('nothing')) return 'bg-white text-black border-black';
     return 'bg-slate-900 text-white border-slate-900';
   };
 
@@ -39,7 +41,7 @@ const PriceCard: React.FC<PriceCardProps> = ({ phone }) => {
               <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${getBrandStyles(phone.brand)}`}>
                 {phone.brand}
               </span>
-              <span className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 border border-slate-200">
+              <span className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border bg-slate-100 text-slate-500 border-slate-200">
                 {phone.category}
               </span>
             </div>
