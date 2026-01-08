@@ -97,6 +97,13 @@ const App: React.FC = () => {
   }, [allPhones, searchQuery, activeBrand, activeCategory]);
 
   const categories = useMemo(() => ['All', ...Array.from(new Set(allPhones.map(p => p.category))).sort()], [allPhones]);
+  
+  const brands = useMemo(() => {
+    const filteredByCat = activeCategory === 'All' 
+      ? allPhones 
+      : allPhones.filter(p => p.category === activeCategory);
+    return ['All', ...Array.from(new Set(filteredByCat.map(p => p.brand))).sort()];
+  }, [allPhones, activeCategory]);
 
   if (!isLoggedIn) return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
@@ -168,7 +175,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-[10px] font-black text-slate-900 leading-none">{displayName}</p>
-              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Pricing Access</p>
+              <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest">User</p>
             </div>
             <button onClick={() => {localStorage.clear(); setIsLoggedIn(false);}} className="p-2 bg-slate-100 rounded-lg text-slate-400 active:bg-slate-200 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>
@@ -176,7 +183,7 @@ const App: React.FC = () => {
           </div>
         </header>
         
-        <div className="px-6 pb-3 max-w-7xl mx-auto space-y-3">
+        <div className="px-6 pb-4 max-w-7xl mx-auto space-y-4">
           <input 
             type="text" 
             placeholder="Search by model or brand..." 
@@ -185,22 +192,44 @@ const App: React.FC = () => {
             className="w-full px-6 py-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 ring-red-500/20 font-bold text-sm text-black appearance-none"
           />
           
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-            {categories.map(cat => (
-              <button 
-                key={cat} 
-                onClick={() => {setActiveCategory(cat); setActiveBrand('All');}}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeCategory === cat ? 'bg-red-600 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100'}`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="space-y-3">
+            {/* Category Filter */}
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {categories.map(cat => (
+                <button 
+                  key={cat} 
+                  onClick={() => {setActiveCategory(cat); setActiveBrand('All');}}
+                  className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeCategory === cat ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100'}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Brand Filter (Restored) */}
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {brands.map(brand => (
+                <button 
+                  key={brand} 
+                  onClick={() => setActiveBrand(brand)}
+                  className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeBrand === brand ? 'bg-red-600 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100'}`}
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-32">
-        {filteredPhones.map(phone => <PriceCard key={phone.id} phone={phone} />)}
+        {filteredPhones.length > 0 ? (
+          filteredPhones.map(phone => <PriceCard key={phone.id} phone={phone} />)
+        ) : (
+          <div className="col-span-full py-20 text-center">
+            <p className="text-slate-400 font-black uppercase text-[10px] tracking-widest">No phones found</p>
+          </div>
+        )}
       </main>
 
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm glass border border-slate-200 shadow-2xl rounded-[2rem] p-3 flex items-center justify-between">
