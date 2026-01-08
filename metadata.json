@@ -1,0 +1,16 @@
+
+{
+  "name": "SK Price Master",
+  "short_name": "SK Price",
+  "description": "Official retail pricing dashboard for SK Mobile store managers.",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#B20D0D",
+  "icons": [
+    {
+      "src": "https://skmobile.in/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
